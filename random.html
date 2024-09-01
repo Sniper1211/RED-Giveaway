@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机数抽奖程序</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        input, button {
+            font-size: 1rem;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            color: #4CAF50;
+        }
+        #nameInput {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        #nameList {
+            height: 2em;
+            overflow: hidden;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>随机抽奖程序</h2>
+        <label for="nameInput">请输入参与者网名（用逗号分隔）：</label>
+        <input type="text" id="nameInput">
+        <button onclick="startLottery()">开始抽奖</button>
+        <div id="nameList"></div>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function startLottery() {
+            var namesInput = document.getElementById("nameInput").value;
+            var names = namesInput.split(',').map(name => name.trim()).filter(name => name !== '');
+            
+            if (names.length === 0) {
+                alert("请输入至少一个有效的参与者名字。");
+                return;
+            }
+
+            var nameListElement = document.getElementById("nameList");
+            var resultElement = document.getElementById("result");
+            resultElement.innerHTML = "";
+            
+            var currentIndex = 0;
+            var intervalId = setInterval(function() {
+                nameListElement.innerHTML = names[currentIndex];
+                currentIndex = (currentIndex + 1) % names.length;
+            }, 100);
+
+            setTimeout(function() {
+                clearInterval(intervalId);
+                slowDownScroll(names, nameListElement, resultElement);
+            }, 2000);
+        }
+
+        function slowDownScroll(names, nameListElement, resultElement) {
+            var winnerIndex = Math.floor(Math.random() * names.length);
+            var currentIndex = 0;
+            var interval = 100;
+
+            function scroll() {
+                nameListElement.innerHTML = names[currentIndex];
+                currentIndex = (currentIndex + 1) % names.length;
+
+                if (currentIndex === winnerIndex && interval > 500) {
+                    nameListElement.innerHTML = names[winnerIndex];
+                    resultElement.innerHTML = "恭喜！中奖者是: " + names[winnerIndex];
+                } else {
+                    interval += 50;
+                    setTimeout(scroll, interval);
+                }
+            }
+
+            scroll();
+        }
+    </script>
+</body>
+</html>
