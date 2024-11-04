@@ -20,15 +20,35 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
+            min-width: 300px;
+            width: 90%;
+            max-width: 500px;
+            min-height: 400px; /* 设置最小高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         h2 {
             color: #333;
+            margin-top: 0;
             margin-bottom: 1.5rem;
+        }
+        .input-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
         }
         input, button {
             font-size: 1rem;
             padding: 0.5rem;
             margin: 0.5rem 0;
+            width: 100%;
+            box-sizing: border-box;
         }
         button {
             background-color: #4CAF50;
@@ -46,30 +66,45 @@
             font-weight: bold;
             margin-top: 1rem;
             color: #4CAF50;
-        }
-        #nameInput {
-            width: 100%;
-            margin-bottom: 1rem;
+            min-height: 3rem; /* 为结果预留空间 */
         }
         #nameList {
             height: 2em;
             overflow: hidden;
             font-size: 1.2rem;
             margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 3rem; /* 确保有足够的空间显示名字 */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .rotating {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        .non-rotating {
+            display: inline-block;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>随机抽奖程序</h2>
-        <label for="nameInput">请输入参与者网名（用逗号分隔）：</label>
-        <input type="text" id="nameInput">
-        <button onclick="startLottery()">开始抽奖</button>
+        <div class="input-section">
+            <label for="nameInput">请输入参与者网名（用逗号分隔）：</label>
+            <input type="text" id="nameInput">
+            <button id="lotteryButton" onclick="startLottery()">开始抽奖</button>
+        </div>
         <div id="nameList"></div>
         <p id="result"></p>
     </div>
 
     <script>
+        // JavaScript 代码保持不变
         function startLottery() {
             var namesInput = document.getElementById("nameInput").value;
             var names = namesInput.split(',').map(name => name.trim()).filter(name => name !== '');
@@ -83,32 +118,42 @@
             var resultElement = document.getElementById("result");
             resultElement.innerHTML = "";
             
+            var lotteryButton = document.getElementById("lotteryButton");
+            lotteryButton.style.display = "none";
+            var emojiElement = document.createElement("span");
+            emojiElement.innerHTML = "⏳";
+            emojiElement.classList.add("rotating");
+            lotteryButton.parentNode.insertBefore(emojiElement, lotteryButton.nextSibling);
+            
             var currentIndex = 0;
             var intervalId = setInterval(function() {
                 nameListElement.innerHTML = names[currentIndex];
                 currentIndex = (currentIndex + 1) % names.length;
-            }, 100);
+            }, 50);
 
             setTimeout(function() {
                 clearInterval(intervalId);
-                slowDownScroll(names, nameListElement, resultElement);
+                slowDownScroll(names, nameListElement, resultElement, emojiElement);
             }, 2000);
         }
 
-        function slowDownScroll(names, nameListElement, resultElement) {
+        function slowDownScroll(names, nameListElement, resultElement, emojiElement) {
             var winnerIndex = Math.floor(Math.random() * names.length);
             var currentIndex = 0;
-            var interval = 100;
+            var interval = 50;
 
             function scroll() {
                 nameListElement.innerHTML = names[currentIndex];
                 currentIndex = (currentIndex + 1) % names.length;
 
-                if (currentIndex === winnerIndex && interval > 500) {
+                if (interval > 500) {
                     nameListElement.innerHTML = names[winnerIndex];
                     resultElement.innerHTML = "恭喜！中奖者是: " + names[winnerIndex];
+                    emojiElement.classList.remove("rotating");
+                    emojiElement.innerHTML = "🏆";
+                    emojiElement.classList.add("non-rotating");
                 } else {
-                    interval += 50;
+                    interval *= 1.2;
                     setTimeout(scroll, interval);
                 }
             }
